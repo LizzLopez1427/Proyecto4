@@ -1,0 +1,188 @@
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+import ddf.minim.effects.*;
+import ddf.minim.signals.*;
+import ddf.minim.spi.*;
+import ddf.minim.ugens.*;
+
+Minim minim;
+AudioPlayer sou;
+
+particle part1;
+particle part2;
+particle part3;
+particle part4;
+particle part5;
+particle part6;
+particle part7;
+particle part8;
+
+float[] force = new float[2];
+float[] oldPosition = new float[3];
+float[] oldVelocity = new float[3];
+float time;
+float n = 0;
+float r = 0;
+float x[] = new float [60];
+float y[] = new float [60];
+float gravedad;
+float resistencia;
+int velocidadCaida = 8;
+int velocidadImpulso = 9;
+boolean movimiento = false;
+boolean rebote = true;
+int posX;
+int posY;
+int altura = 30;
+
+
+void setup() 
+{
+  size(500,500);
+  minim = new Minim(this);
+  sou = minim.loadFile("Beach Day.mp3");
+  sou.loop();
+  part1 = new particle(color(255,0,0),10,250,250,5,50,1);
+  part2 = new particle(color(0,0,255),5,250,250,5,70,1);
+  part3 = new particle(color(0,255,0),5,250,250,3,50,1);
+  part4 = new particle(color(255,0,255),25,200,250,3,80,1);
+  part5 = new particle(color(0,255,255),3,250,250,8,40,1);
+  part6 = new particle(color(255,0,250),15,250,250,8,50,1);
+  part7 = new particle(color(0,250,255),30,250,250,5,50,1);
+  part8 = new particle(color(250,255,0),17,250,250,3,10,1);
+  force[0]=0.0;
+  force[1]=-9.8;
+  time=0.1;
+  resistencia = 0.01;
+  gravedad = 0.981;
+}
+
+
+void draw() 
+{
+  background(0);
+  ellipse((width/2 + cos(n) * r), (height/2 + sin(n) * r), (CENTER), (CENTER));
+  {
+    n = n + 0.02;
+    r = r + 0.15;
+  }
+  
+  part1.particleMove();
+  part1.particleRender();
+  part2.particleMove();
+  part2.particleRender();
+  part3.particleMove();
+  part3.particleRender();
+  part4.particleMove();
+  part4.particleRender();
+  part5.particleMove();
+  part5.particleRender();
+  part6.particleMove();
+  part6.particleRender();
+  part7.particleMove();
+  part7.particleRender();
+  part8.particleMove();
+  part8.particleRender();
+  
+  
+  if(movimiento)
+  {
+    posX = 0;
+    if(rebote)
+    {
+      posY = posY + velocidadCaida;
+    }
+    else
+    {
+      posY = posY - velocidadImpulso;
+    }
+    if(posY>=570)
+    {
+      rebote = false;
+      altura = altura+50;
+      velocidadImpulso--;
+    }
+    if(posY<=altura)
+    {
+      rebote= true;
+    }
+  }
+  if(altura>=575)
+  {
+    movimiento=false;
+  }
+  
+}
+
+
+class particle 
+{
+  color color_p;
+  float particleRadius;
+  float[] position = new float[2];
+  float[] velocity = new float[2];
+  float[] acceleration = new float[2];
+  float mass;
+  particle(color c,float r,float posX,float posY,float velX,float velY,float m) 
+  {
+    color_p=c;
+    particleRadius=r;
+    position[0]=posX;
+    position[1]=posY;
+    velocity[0]=velX;
+    velocity[1]=velY;
+    mass=m;
+  
+   if(movimiento)
+  {
+    posX = 8;
+    if(rebote)
+    {
+      posY = posY + velocidadCaida;
+    }
+    else
+    {
+      posY = posY - velocidadImpulso;
+    }
+    if(posY>=8)
+    {
+      rebote = false;
+      altura = altura+50;
+      velocidadImpulso--;
+    }
+    if(posY<=altura)
+    {
+      rebote= true;
+    }
+  }
+  if(altura>=575)
+  {
+    movimiento=false;
+  }
+}
+
+
+void particleRender() 
+{
+  noStroke();
+  fill(color_p);
+  ellipse(position[0],height+position[0],particleRadius,particleRadius);
+  ellipse(position[0],height-position[0],particleRadius,particleRadius);
+  ellipse(position[0],height/position[0],particleRadius,particleRadius);
+}
+
+void particleMove() 
+{
+  oldPosition[1]=position[1];
+  oldPosition[0]=position[0];
+  oldVelocity[0]=velocity[0];
+  oldVelocity[1]=velocity[1];
+  acceleration[0]=force[0]/mass;
+  acceleration[1]=force[1]/mass;
+  velocity[0]=oldVelocity[0] + time*acceleration[0];
+  velocity[1]=oldVelocity[1] + time*acceleration[1];
+  position[0]=oldPosition[0] + time*velocity[0];
+  position[1]=oldPosition[1] + time*velocity[1];
+
+}
+}
